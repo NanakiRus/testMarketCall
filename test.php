@@ -83,3 +83,86 @@ for ($i = 0; $i < $countedArray; $i++) {
 //html тегов. Использование готовых парсеров и библиотек запрещено.
 //(обязательно использование ООП подхода, демонстрирующее
 //взаимодействие объектов)
+
+<?php
+
+namespace app\components\helpers;
+
+
+class HtmlParser
+{
+    protected $url;
+
+    protected $dom;
+
+    public $errors;
+
+    public function __construct(string $url)
+    {
+        if (!empty($url)) {
+            $this->url = $url;
+        }
+    }
+
+    public function setUrl(string $url)
+    {
+        if (!empty($url)) {
+            $this->url = $url;
+        }
+
+        return $this;
+    }
+
+    public function getHtml()
+    {
+        $pageCrawler = new PageCrawler($this->url);
+
+        if (!empty($pageCrawler->error)) {
+            $this->errors[] = $pageCrawler->error;
+
+            return false;
+        }
+
+        $this->dom = $pageCrawler->getDom();
+
+        return true;
+    }
+
+    public function parseHtml()
+    {
+
+    }
+}
+
+<?php
+
+namespace app\components\helpers;
+
+
+class PageCrawler
+{
+    protected $dom;
+
+    public $error;
+
+    public function __construct(string $url)
+    {
+        if (!empty($url)) {
+            try {
+                $this->dom = \file_get_contents($url);
+            } catch (\Exception $exception) {
+                $this->error = [
+                    'massage' => $exception->getMessage(),
+                    'code' => $exception->getCode(),
+                    'line' => $exception->getLine(),
+                    'trace' => $exception->getTrace()
+                ];
+            }
+        }
+    }
+
+    public function getDom()
+    {
+        return $this->dom;
+    }
+}
